@@ -75,3 +75,7 @@ class PlexBackend():
         for media in track.media:
             for p in media.parts:
                 return p.key
+
+    def play_media(self, link):
+        client = self.plex.client("Roku Ultra2")
+        client.playMedia(link)
