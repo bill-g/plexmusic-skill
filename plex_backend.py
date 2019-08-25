@@ -41,6 +41,7 @@ class PlexBackend():
                     songs[artist_title][album_title] = []
                     for track in album.tracks():
                         title = track.title
+                        key = track.key
                         file_key = self.get_file(track)
                         file = self.get_tokenized_uri( file_key )
                         try:
@@ -48,9 +49,10 @@ class PlexBackend():
             %s -- %s 
             %s
             %s
+            %s
 
-                            """ % (count, artist_title, album_title, title,file_key))
-                            songs[artist_title][album_title].append([title, file])
+                            """ % (count, artist_title, album_title, title,file_key, key))
+                            songs[artist_title][album_title].append([title, file, key])
                             count += 1
                         except Exception as ex:
                             print(ex)
@@ -76,6 +78,6 @@ class PlexBackend():
             for p in media.parts:
                 return p.key
 
-    def play_media(self, link):
+    def play_media(self, key):
         client = self.plex.client("Roku Ultra2")
-        client.playMedia(link)
+        client.playMedia(key)

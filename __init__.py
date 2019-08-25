@@ -108,6 +108,7 @@ class PlexMusicSkill(CommonPlaySkill):
                 self.vlc_player.stop()
         title = data["title"]
         link = data["file"]
+        key = data["key"]
         random.shuffle(link)
         try:
             if not self.client:
@@ -125,7 +126,7 @@ class PlexMusicSkill(CommonPlaySkill):
                     self.vlc_player.set_media(m)
                     self.vlc_player.play() """
             else:
-                self.plex.play_media(link)
+                self.plex.play_media(key)
         except Exception as e:
             LOG.info(type(e))
             LOG.info("Unexpected error:", sys.exc_info()[0])
@@ -205,6 +206,7 @@ class PlexMusicSkill(CommonPlaySkill):
                     for song in data[artist][album]:
                         title = song[0]
                         file = song[1]  # link
+                        key = song[2] #media key for remote play
                         self.albums[album].append(file)
                         self.artists[artist].append(file)
                         self.titles[title].append(file)
