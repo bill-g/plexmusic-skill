@@ -75,19 +75,22 @@ class PlexMusicSkill(CommonPlaySkill):
             if t_prob > al_prob and t_prob > a_prob:
                 data = {
                     "title": title,
-                    "file": self.titles[title]
+                    "file": self.titles[title],
+                    "media_type": "title"
                 }
                 return phrase, CPSMatchLevel.TITLE, data
             elif a_prob >= al_prob and a_prob != 0:
                 data = {
                     "title": artist,
-                    "file": self.artists[artist]
+                    "file": self.artists[artist],
+                    "media_type": "artist"
                 }
                 return phrase, CPSMatchLevel.MULTI_KEY, data
             elif al_prob >= a_prob and al_prob != 0:
                 data = {
                     "title": album,
-                    "file": self.albums[album]
+                    "file": self.albums[album],
+                    "media_type": "album"
                 }
                 return phrase, CPSMatchLevel.MULTI_KEY, data
             elif p_prob > al_prob:
@@ -108,7 +111,7 @@ class PlexMusicSkill(CommonPlaySkill):
                 self.vlc_player.stop()
         title = data["title"]
         link = data["file"]
-        key = data["key"]
+        media_type = data["media_type"]
         random.shuffle(link)
         try:
             if not self.client:
@@ -126,7 +129,10 @@ class PlexMusicSkill(CommonPlaySkill):
                     self.vlc_player.set_media(m)
                     self.vlc_player.play() """
             else:
-                self.plex.play_media(key)
+                # plex doesn't take a collection of items like vlc
+                # just pass a single key, and let the backend decide what to do
+                key = self.keys[link[0]]
+                self.plex.play_media(key, media_type)
         except Exception as e:
             LOG.info(type(e))
             LOG.info("Unexpected error:", sys.exc_info()[0])
@@ -157,6 +163,7 @@ class PlexMusicSkill(CommonPlaySkill):
         self.albums = defaultdict(list)
         self.titles = defaultdict(list)
         self.playlists = defaultdict(list)
+        self.keys = defaultdict(list)
         self.tracks = {}
         self.vlc_player = None
 
@@ -211,6 +218,7 @@ class PlexMusicSkill(CommonPlaySkill):
                         self.artists[artist].append(file)
                         self.titles[title].append(file)
                         self.tracks[file] = (artist, album, title)
+                        self.keys[file] = key
         finally:
             self.refreshing_lib = False
 
@@ -231,7 +239,7 @@ class PlexMusicSkill(CommonPlaySkill):
         if self.plex is None:
             LOG.info("\n\nconnecting to:\n{} \n{} {}\n".format(self.p_uri, self.token, self.lib_name))
             if self.token and self.p_uri and self.lib_name:
-                self.plex = PlexBackend(self.p_uri, self.token, self.lib_name, self.data_path)
+                self.plex = PlexBackend(self.p_uri, self.token, self.lib_name, self.data_path, self.client)
                 return True
             else:
                 self.speak_dialog("config.missing")

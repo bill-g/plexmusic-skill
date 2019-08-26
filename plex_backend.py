@@ -4,12 +4,13 @@ from plexapi.server import PlexServer
 
 class PlexBackend():
 
-    def __init__(self, plexurl, token, libname, data_path):
+    def __init__(self, plexurl, token, libname, data_path, client_name):
 
         self.token = token
         self.plexurl = plexurl
         self.lib_name = libname
         self.data_path = data_path
+        self.client_name = client_name
         self.plex = PlexServer(self.plexurl, self.token)
         self.music = self.plex.library.section(self.lib_name)
                        
@@ -78,6 +79,11 @@ class PlexBackend():
             for p in media.parts:
                 return p.key
 
-    def play_media(self, key):
-        client = self.plex.client("Roku Ultra2")
-        client.playMedia(key)
+    def play_media(self, key, media_type):
+        client = self.plex.client(self.client_name)
+        item = self.plex.library.fetchItem(key)
+        if media_type == "album":
+            item = self.plex.library.fetchItem(item.parentKey)
+        elif media_type == "artist":
+            item = self.plex.library.fetchItem(item.grandparentKey)
+        client.playMedia(item)
