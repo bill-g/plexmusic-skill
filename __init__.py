@@ -139,9 +139,10 @@ class PlexMusicSkill(CommonPlaySkill):
             raise
         finally:
             time.sleep(2)
-            if not self.get_running():
-                self.speak_dialog("playback.problem")
-                self.speak_dialog("excuses")
+            if not self.client:
+                if not self.get_running():
+                    self.speak_dialog("playback.problem")
+                    self.speak_dialog("excuses")
 
     def __init__(self):
         super().__init__(name="TemplateSkill")

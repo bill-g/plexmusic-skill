@@ -84,6 +84,8 @@ class PlexBackend():
         item = self.plex.library.fetchItem(key)
         if media_type == "album":
             item = self.plex.library.fetchItem(item.parentKey)
+            client.setShuffle(0)
         elif media_type == "artist":
             item = self.plex.library.fetchItem(item.grandparentKey)
+            client.setShuffle(1)
         client.playMedia(item)
