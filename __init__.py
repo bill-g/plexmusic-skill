@@ -305,29 +305,21 @@ class PlexMusicSkill(CommonPlaySkill):
         if self.ducking:
             if not self.client:
                 self.vlc_player.lower_volume()
-            else:
-                self.plex.pause()
 
     def handle_listener_stopped(self, message):
         if self.ducking:
             if not self.client:
                 self.vlc_player.restore_volume()
-            else:
-                self.plex.resume()
 
     def handle_audio_start(self, event):
         if self.ducking:
             if not self.client:
                 self.vlc_player.lower_volume()
-            else:
-                self.plex.pause()
 
     def handle_audio_stop(self, event):
         if self.ducking:
             if not self.client:
                 self.vlc_player.restore_volume()
-            else:
-                self.plex.resume()
 
     ##################################################################
     # intents
