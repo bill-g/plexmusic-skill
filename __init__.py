@@ -35,6 +35,7 @@ from fuzzywuzzy import process
 from json import load, dump
 from .plex_backend import PlexBackend
 from mycroft.audio.services.vlc import VlcService
+from plexapi import exceptions
 
 __author__ = 'colla69'
 
@@ -55,7 +56,15 @@ class PlexMusicSkill(CommonPlaySkill):
             a_prob = 0
             al_prob = 0
             p_prob = 0
-            if phrase.startswith("artist"):
+            if phrase == "a random album" or phrase == "random album":
+                title = random.choice(list(self.albums.keys()))
+                data = {
+                    "title": title,
+                    "file": self.albums[title],
+                    "media_type": "album"
+                }
+                return phrase, CPSMatchLevel.EXACT, data
+            elif phrase.startswith("artist"):
                 artist, a_prob = self.artist_search(phrase[7:])
             elif phrase.startswith("album"):
                 album, al_prob = self.album_search(phrase[6:])
@@ -133,6 +142,10 @@ class PlexMusicSkill(CommonPlaySkill):
                 # just pass a single key, and let the backend decide what to do
                 key = self.keys[link[0]]
                 self.plex.play_media(key, media_type)
+        except exceptions.NotFound:
+            LOG.info("Could not connect to configured Plex client")
+            self.speak_dialog("client.connection.problem")
+            return None
         except Exception as e:
             LOG.info(type(e))
             LOG.info("Unexpected error:", sys.exc_info()[0])
@@ -317,6 +330,8 @@ class PlexMusicSkill(CommonPlaySkill):
         else:
             if not self.client:
                 self.vlc_player.resume()
+            else:
+                self.plex.resume()
 
     @intent_file_handler('pause.music.intent')
     def handle_pause_music_intent(self, message):
@@ -326,6 +341,8 @@ class PlexMusicSkill(CommonPlaySkill):
         else:
             if not self.client:
                 self.vlc_player.pause()
+            else:
+                self.plex.pause()
 
     @intent_file_handler('next.music.intent')
     def handle_next_music_intent(self, message):
@@ -335,6 +352,8 @@ class PlexMusicSkill(CommonPlaySkill):
         else:
             if not self.client:
                 self.vlc_player.next()
+            else:
+                self.plex.next()
 
     @intent_file_handler('prev.music.intent')
     def handle_prev_music_intent(self, message):
@@ -344,6 +363,8 @@ class PlexMusicSkill(CommonPlaySkill):
         else:
             if not self.client:
                 self.vlc_player.previous()
+            else:
+                self.plex.previous()
 
     @intent_file_handler('information.intent')
     def handle_music_information_intent(self, message):
@@ -385,6 +406,8 @@ class PlexMusicSkill(CommonPlaySkill):
     def stop(self):
         if not self.client:
             self.vlc_player.stop()
+        else:
+            self.plex.stop()
 
 
 def create_skill():

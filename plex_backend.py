@@ -91,3 +91,23 @@ class PlexBackend():
             client.playMedia(queue)
         else:
             client.playMedia(item)
+
+    def pause(self):
+        client = self.plex.client(self.client_name)
+        client.pause()
+
+    def next(self):
+        client = self.plex.client(self.client_name)
+        client.skipNext()
+
+    def previous(self):
+        client = self.plex.client(self.client_name)
+        client.skipPrevious()
+
+    def resume(self):
+        client = self.plex.client(self.client_name)
+        client.play()
+
+    def stop(self):
+        client = self.plex.client(self.client_name)
+        client.stop()
