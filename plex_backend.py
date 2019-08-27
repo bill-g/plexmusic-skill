@@ -94,20 +94,20 @@ class PlexBackend():
 
     def pause(self):
         client = self.plex.client(self.client_name)
-        client.pause()
+        client.pause("music")
 
     def next(self):
         client = self.plex.client(self.client_name)
-        client.skipNext()
+        client.skipNext("music")
 
     def previous(self):
         client = self.plex.client(self.client_name)
-        client.skipPrevious()
+        client.skipPrevious("music")
 
     def resume(self):
         client = self.plex.client(self.client_name)
-        client.play()
+        client.play("music")
 
     def stop(self):
         client = self.plex.client(self.client_name)
-        client.stop()
+        client.stop("music")
